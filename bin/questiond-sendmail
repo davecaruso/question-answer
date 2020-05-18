@@ -23,7 +23,7 @@ const msg = status === 'accept'
     subject: 'davecode.me question: ANSWERED',
     html: [
       `hello,`,
-      `your question asked at <a href='https://davecode.me/q+a'>dave's q+a</address> has been<br/>answered. you can ask another, or do<br/>whatever else you like.`,
+      `your question asked at <a href='https://davecode.me/q+a'>dave's q+a</a> has been<br/>answered. you can ask another, or do<br/>whatever else you like.`,
       `have a nice day,<br/>dave's question bot`,
       `<br/><br/><br/><sub>(do not reply to this address, send to dave@davecode.me)</sub>`
     ].map(x => `<p>${x}</p>`).join('') + '',
@@ -34,7 +34,7 @@ const msg = status === 'accept'
     subject: 'davecode.me question: DENIED',
     html: [
       `hello,`,
-      `your question asked at <a href='https://davecode.me/q+a'>dave's q+a</address> has been<br/>denied. it will not be answered for whatever reason.`,
+      `your question asked at <a href='https://davecode.me/q+a'>dave's q+a</a> has been<br/>denied. it will not be answered for whatever reason.`,
       `have a nice day,<br/>dave's question bot`,
       `<br/><br/><br/><sub>(do not reply to this address, send to dave@davecode.me)</sub>`
     ].map(x => `<p>${x}</p>`).join('') + '',
