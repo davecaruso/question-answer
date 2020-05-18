@@ -12,6 +12,12 @@ This is most of the code used to run the qa service. It is composed of:
 - **Responder Email Tool** (Node) see ./bin/questiond-sendmail
 - **Polybar Question Counter** (Shell) see ./bin/polybar-questiond
 
+You may notice that there is no built in way to generate the *actual* question
+viewer page. That is currently how it is run. I would like to change this to a
+system where q+a files are reuploaded to the server, and pages are generated
+with PHP or some other system. For now you will have to create your own staticly
+generated website and hook the .data dir to it.
+
 ## Install
 For best results, use a linux system.
 
