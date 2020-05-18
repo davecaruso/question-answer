@@ -1,0 +1,81 @@
+/**
+ *
+ *    This code has been exported from davecode.me's source.
+ *    written by Dave Caruso, 2020.
+ *
+ *    You may do whatever you want with it, with the exception of selling this
+ *    code, or any derivative of it. It is not required, but you should also
+ *    modify the code if you want to make your own question page, so you don't
+ *    look exactly like a copycat.
+ *
+ */
+
+  @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&display=swap');
+  *{box-sizing: border-box;color:var(--color) }
+  a > * {color:inherit}
+  body {
+    font-family: sans-serif;
+    width: 100%;
+    margin: 0;
+    padding: 10px;
+    background: #1a1a1a;
+    --color: white;
+    font-size: 16px;
+    touch-action: manipulation;
+  }
+  .paper {
+    max-width: 700px;
+    margin: auto;
+  }
+  a {
+    --color: #61ffda;
+    text-decoration: none;
+  }
+  [notes-link] {
+    --color: #14addb;
+  }
+  [notes-link]:active {
+    --color: #2114db;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  a:active {
+    --color: #6987f5;
+  }
+  a:visited:not(:hover):not(:active):not(:focus) {
+    color: #09FFC5
+  }
+  h1, h2, h3 { 
+    font-family: 'Roboto Slab', serif;
+  }
+  h1 {
+    --color: #ff9a42;
+  }
+  h2 {font-size:1.17em}
+  ul {
+    line-height: 1.8;
+  }
+  .unixPrefix { user-select: none; }
+  input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 0px;
+    height: auto;
+  }
+  
+  textarea,input,button{border:1px solid white;background:black;color:white;padding:8px;}
+  textarea:focus,input:focus{border:1px solid #00FFFF;outline:2px solid #00FFFF}
+  button:focus{border:1px solid #00FFFF;outline:0px solid #00FFFF}
+  button:active{border:1px solid #55FFFF;outline:2px solid #55FFFF}
+  textarea::placeholder{color:white;opacity:0.3}
+
+  .q{font-weight:bold;font-size:18px;margin-bottom:0;margin-top:6px}
+  date+.q{margin-top:2px}
+  .d{font-size:16px;opacity:0.7;margin-top:28px;margin-bottom:0px;display:block}
+  .a{font-size:16px;margin-top:6px;color:#81ff61}
+  .a>p:first-child{margin-top:0}
+  .a>p:last-child{margin-bottom:0}
+  .q>p:first-child{margin-top:0}
+  .q>p:last-child{margin-bottom:0}

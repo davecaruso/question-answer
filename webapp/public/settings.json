@@ -1,0 +1,14 @@
+{
+  "appname": "question-responder",
+  "appport": "6481",
+  "mode": "window",
+  "window": {
+      "title": "My app",
+      "width": "1280",
+      "height": "720",
+      "fullscreen": false,
+      "alwaysontop": true,
+      "enableinspector": false,
+      "borderlesswindow": false
+  }
+}

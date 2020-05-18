@@ -1,0 +1,42 @@
+#!/usr/bin/node
+const address = process.argv[2];
+const status = process.argv[3];
+
+if (!address) {
+  console.log('Error: No Address')
+  console.log(`${process.argv[1]} <address> <status>`);
+  process.exit(1);
+}
+if (status !== 'accept' && status !== 'deny') {
+  console.log('Error: Status must be "accept" or "deny"')
+  console.log(`${process.argv[1]} <address> <status>`);
+  process.exit(1);
+}
+
+const sgMail = require('@sendgrid/mail');
+console.log('questiond-sendmail: Sending ' + status + ' to ' + address)
+sgMail.setApiKey(require('fs').readFileSync(process.env.HOME + '/.ssh/sendgrid.token').toString().replace(/[ \t\n]/g, ''))
+const msg = status === 'accept'
+  ? {
+    to: address,
+    from: 'q+a@davecode.me',
+    subject: 'davecode.me question: ANSWERED',
+    html: [
+      `hello,`,
+      `your question asked at <a href='https://davecode.me/q+a'>dave's q+a</address> has been<br/>answered. you can ask another, or do<br/>whatever else you like.`,
+      `have a nice day,<br/>dave's question bot`,
+      `<br/><br/><br/><sub>(do not reply to this address, send to dave@davecode.me)</sub>`
+    ].map(x => `<p>${x}</p>`).join('') + '',
+  }
+  : {
+    to: address,
+    from: 'q+a@davecode.me',
+    subject: 'davecode.me question: DENIED',
+    html: [
+      `hello,`,
+      `your question asked at <a href='https://davecode.me/q+a'>dave's q+a</address> has been<br/>denied. it will not be answered for whatever reason.`,
+      `have a nice day,<br/>dave's question bot`,
+      `<br/><br/><br/><sub>(do not reply to this address, send to dave@davecode.me)</sub>`
+    ].map(x => `<p>${x}</p>`).join('') + '',
+  };
+sgMail.send(msg);

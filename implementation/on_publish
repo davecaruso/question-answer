@@ -1,0 +1,2 @@
+#!/bin/bash
+echo This script is called to publish the site. By default it does nothing.

@@ -1,0 +1,19 @@
+body {
+  padding: 0;
+}
+.app {
+  margin: auto;
+  width: 100vw;
+  display: flex;
+  margin-top: 25px;
+}
+.flexbox {
+  flex: 100vw;
+}
+.right {
+  width: 500px;
+  padding-left: 50px;
+}
+.flexbox > div > span.d:first-child {
+  margin-top: 0;
+}

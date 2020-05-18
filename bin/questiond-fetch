@@ -1,0 +1,9 @@
+#!/bin/bash
+DATA_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd ../.data >/dev/null 2>&1 && pwd )"
+
+HOST=$(cat $DATA_DIR/../questiond.json | jq --raw-output '.host')
+USER=$(cat $DATA_DIR/../questiond.json | jq --raw-output '.user')
+
+echo Fetching Questions
+scp -r "$USER@$HOST:~/qa-data/*" "$DATA_DIR/unanswered" 2>/dev/null >/dev/null
+ssh $USER@$HOST 'rm -f ~/qa-data/*' 2>/dev/null >/dev/null

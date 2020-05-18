@@ -1,0 +1,128 @@
+#!/usr/bin/node
+const express = require('express');
+const fs = require('fs-extra');
+const path = require('path');
+const body = require('body-parser');
+const child_process = require('child_process');
+const app = express();
+
+const WEB_BUILD_DIR = path.join(__dirname, '../webapp/build');
+
+const DATA_DIR = path.join(__dirname, '../.data');
+const DATA_UNANSWERED = path.join(DATA_DIR, 'unanswered');
+const DATA_ANSWERED = path.join(DATA_DIR, 'answered');
+const DATA_ANSWERED_MAIL = path.join(DATA_DIR, 'mail_answered');
+const DATA_DENY_MAIL = path.join(DATA_DIR, 'mail_deny');
+const DATA_IS_DIRTY = path.join(DATA_DIR, 'flag_dirty');
+
+app.use(express.static(WEB_BUILD_DIR));
+
+fs.ensureDirSync(DATA_DIR);
+fs.ensureDirSync(DATA_UNANSWERED);
+fs.ensureDirSync(DATA_ANSWERED);
+
+const conf = require('../questiond.json');
+
+app.use((req,res,n) => {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Headers', 'content-type')
+  n();
+});
+
+app.post('/publish', async(req, res) => {
+  child_process.execSync(path.join(__dirname, '../implementation/on_publish'), { stdio: 'inherit' })
+
+  const mailAnswered = (await fs.readFile(DATA_ANSWERED_MAIL).catch(x => '')).toString().split('\n').map(x => x.trim()).filter(Boolean)
+  const mailDeny = (await fs.readFile(DATA_DENY_MAIL).catch(x => '')).toString().split('\n').map(x => x.trim()).filter(Boolean)
+  
+  for (const person of mailAnswered) {
+    child_process.execSync(`"${path.join(__dirname, './questiond-sendmail')}" "${person}" accept`, { stdio: 'inherit' })
+  }
+  console.log('deny')
+  for (const person of mailDeny) {
+    child_process.execSync(`"${path.join(__dirname, './questiond-sendmail')}" "${person}" deny`, { stdio: 'inherit' })
+  }
+
+  await fs.unlink(DATA_ANSWERED_MAIL)
+  await fs.unlink(DATA_DENY_MAIL)
+  await fs.unlink(DATA_IS_DIRTY)
+  
+  res.send('OK');
+});
+
+app.get('/is-dirty', async(req, res) => {
+  res.send((await fs.exists(DATA_IS_DIRTY)).toString());
+});
+app.get('/question-count', async(req, res) => {
+  res.send((await fs.readdir(DATA_UNANSWERED)).length.toString());
+});
+app.get('/peek-question', async(req, res) => {
+  const name = (await fs.readdir(DATA_UNANSWERED)).sort()[0];
+  if(!name) return res.send({});
+  res.send({
+    date: name.replace(/\.json/, '').replace(/_/g, ':'),
+    ...await fs.readJSON(path.join(DATA_UNANSWERED, name)),
+  });
+});
+app.post('/answer-question', body.json(), async(req, res) => {
+  const filename = (await fs.readdir(DATA_UNANSWERED)).sort()[0];
+  const email = (await fs.readJSON(path.join(DATA_UNANSWERED, filename))).email;
+  const q = req.body;
+
+  console.log('success ' + filename + ', ' + email);
+
+  const answeredFile = filename.replace(/^(....)-(..).*$/, '$1/$1-$2.json');
+
+  await Promise.all([
+    fs.remove(path.join(DATA_UNANSWERED, filename)),
+    new Promise(async(done) => {
+      if (await fs.pathExists(path.join(DATA_ANSWERED, answeredFile))) {
+        done(await fs.readJSON(path.join(DATA_ANSWERED, answeredFile)));
+      } else {
+        done({});
+      }
+    }).then(async(json) => {
+      json[filename.replace('.json', '')] = q;
+      await fs.ensureDir(path.dirname(path.join(DATA_ANSWERED, answeredFile)))
+      await fs.writeJSON(path.join(DATA_ANSWERED, answeredFile), json, { spaces: 2 });
+    }),
+    fs.appendFileSync(DATA_ANSWERED_MAIL, email+ '\n')
+  ]);
+
+  res.send('OK');
+});
+app.post('/deny-question', body.json(), async(req, res) => {
+  const filename = (await fs.readdir(DATA_UNANSWERED)).sort()[0];
+  const email = (await fs.readJSON(path.join(DATA_UNANSWERED, filename))).email;
+
+  console.log('denied ' + filename + ', ' + email);
+
+  await Promise.all([
+    fs.remove(path.join(DATA_UNANSWERED, filename)),
+    email && fs.appendFileSync(DATA_DENY_MAIL, email+ '\n'),
+    email && fs.createFile(DATA_IS_DIRTY)
+  ].fill(Boolean));
+
+  res.send('OK');
+});
+
+app.listen(6482, 'localhost');
+
+child_process.spawn(path.join(__dirname, './questiond-fetch'));
+setInterval(() => {
+  child_process.spawn(path.join(__dirname, './questiond-fetch'));
+}, 1000 * conf.interval);
+
+app.post('/deny-question', body.json(), async(req, res) => {
+  const filename = (await fs.readdir(DATA_UNANSWERED)).sort()[0];
+  const email = (await fs.readJSON(path.join(DATA_UNANSWERED, filename))).email;
+
+  console.log('denied ' + filename + ', ' + email);
+
+  await Promise.all([
+    fs.remove(path.join(DATA_UNANSWERED, filename)),
+    email && fs.appendFileSync(DATA_DENY_MAIL, email+ '\n')
+  ].fill(Boolean));
+
+  res.send('OK');
+});
