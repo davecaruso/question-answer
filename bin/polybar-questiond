@@ -1,9 +1,16 @@
 #!/bin/bash
-DATA_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd ../.data >/dev/null 2>&1 && pwd )"
-COUNT=$(find $DATA_DIR/unanswered -type f | wc -l)
-if [ $COUNT = "0" ]; then
-  printf '%s Caught Up' "%{F#aaaaaa}"
-else
-  if ! [ $COUNT = "1" ]; then ENDING=s; fi
-  printf '%s %d Question%s' "%{F#a3ff69}" "$COUNT" "$ENDING"
-fi
+refresh() {
+  DATA_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd ../.data >/dev/null 2>&1 && pwd )"
+  COUNT=$(find $DATA_DIR/unanswered -type f | wc -l)
+  if [ $COUNT = "0" ]; then
+    printf '%s Caught Up' "%{F#aaaaaa}"
+  else
+    if ! [ $COUNT = "1" ]; then ENDING=s; fi
+    printf '%s %d Question%s' "%{F#a3ff69}" "$COUNT" "$ENDING"
+  fi
+}
+
+refresh
+while no inotifywait .data/unanswered/ -e create; do
+  refresh
+done
