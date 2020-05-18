@@ -23,13 +23,34 @@ fs.ensureDirSync(DATA_ANSWERED);
 
 const conf = require('../questiond.json');
 
+let interval = 0;
+function fetch() {
+  clearTimeout(interval);
+  child_process.execSync(path.join(__dirname, './questiond-fetch'));
+  interval = setTimeout(fetch, 1000 * conf.interval);
+}
+fetch();
+
 app.use((req,res,n) => {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Headers', 'content-type')
   n();
 });
 
+app.get('/fetch-new-questions', async(req, res) => {
+  fetch();
+  res.send('OK');
+});
+
 app.post('/publish', async(req, res) => {
+  res.send('OK');
+
+  try {
+    child_process.execSync('chromix-too close http://localhost:6482/')
+  } catch (error) {
+    //
+  }
+
   child_process.execSync(path.join(__dirname, '../implementation/on_publish'), { stdio: 'inherit' })
 
   const mailAnswered = (await fs.readFile(DATA_ANSWERED_MAIL).catch(x => '')).toString().split('\n').map(x => x.trim()).filter(Boolean)
@@ -43,11 +64,9 @@ app.post('/publish', async(req, res) => {
     child_process.execSync(`"${path.join(__dirname, './questiond-sendmail')}" "${person}" deny`, { stdio: 'inherit' })
   }
 
-  await fs.unlink(DATA_ANSWERED_MAIL)
-  await fs.unlink(DATA_DENY_MAIL)
-  await fs.unlink(DATA_IS_DIRTY)
-  
-  res.send('OK');
+  if(await fs.pathExists(DATA_ANSWERED_MAIL)) { await fs.unlink(DATA_ANSWERED_MAIL) }
+  if(await fs.pathExists(DATA_DENY_MAIL)) { await fs.unlink(DATA_DENY_MAIL) }
+  if(await fs.pathExists(DATA_IS_DIRTY)) { await fs.unlink(DATA_IS_DIRTY) }
 });
 
 app.get('/is-dirty', async(req, res) => {
@@ -106,13 +125,6 @@ app.post('/deny-question', body.json(), async(req, res) => {
   res.send('OK');
 });
 
-app.listen(6482, 'localhost');
-
-child_process.spawn(path.join(__dirname, './questiond-fetch'));
-setInterval(() => {
-  child_process.spawn(path.join(__dirname, './questiond-fetch'));
-}, 1000 * conf.interval);
-
 app.post('/deny-question', body.json(), async(req, res) => {
   const filename = (await fs.readdir(DATA_UNANSWERED)).sort()[0];
   const email = (await fs.readJSON(path.join(DATA_UNANSWERED, filename))).email;
@@ -126,3 +138,5 @@ app.post('/deny-question', body.json(), async(req, res) => {
 
   res.send('OK');
 });
+
+app.listen(6482, 'localhost');

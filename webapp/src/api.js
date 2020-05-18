@@ -6,6 +6,7 @@ const URL_PEEK_QUESTION = `${URL_BASE}/peek-question`;
 const URL_ANSWER_QUESTION = `${URL_BASE}/answer-question`;
 const URL_DENY_QUESTION = `${URL_BASE}/deny-question`;
 const URL_IS_DIRTY = `${URL_BASE}/is-dirty`;
+const URL_FETCH = `${URL_BASE}/fetch-new-questions`;
 
 export function getQuestionCount() {
   return fetch(URL_QUESTION_COUNT).then((x) => x.text()).then(x => parseInt(x))
@@ -41,4 +42,7 @@ export function deny(q) {
 
 export function publish(q) {
   return fetch(URL_PUBLISH, { method: 'POST' });
+}
+export function fetchQuestions(q) {
+  return fetch(URL_FETCH);
 }

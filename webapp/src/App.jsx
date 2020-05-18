@@ -34,19 +34,25 @@ function ErrorFallback({error, componentStack, resetErrorBoundary}) {
 
 function App() {
   const [loading, setLoading] = useState(false);
+  const [hasDoneFetch, setDoneFetch] = useState(null);
   const [isDirty, setDirty] = useState(null);
   const [questionCount, setQuestionCount] = useState(null);
   const [question, setQuestion] = useState(null);
   const [code,setCode] = useState('hi:\n  - question: hi\n  - answer: bye');
 
   useEffect(() => {
-    if (!loading && isDirty === null) {
+    if(!loading && !hasDoneFetch) {
+      api.fetchQuestions().then(() => {
+        setDoneFetch(true)
+        setLoading(false);
+      })
+    } else if (!loading && isDirty === null) {
       setLoading(true);
       api.getIsDirty().then(dirty => {
         setDirty(dirty);
         setLoading(false);
       })
-    } if (!loading && questionCount === null) {
+    } else if (!loading && questionCount === null) {
       setLoading(true);
       api.getQuestionCount().then(count => {
         setQuestionCount(count);
@@ -93,6 +99,7 @@ function App() {
         setQuestionCount(questionCount - 1);
         setQuestion(null);
         setLoading(false);
+        setDirty(true);
       })
     }
   }, [question, questionCount, loading, code])
@@ -103,6 +110,9 @@ function App() {
         setQuestionCount(questionCount - 1);
         setQuestion(null);
         setLoading(false);
+        if(question.email) {
+          setDirty(true);
+        }
       })
     }
   }, [question, questionCount, loading])
