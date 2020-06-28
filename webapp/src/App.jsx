@@ -42,6 +42,7 @@ function App() {
 
   useEffect(() => {
     if(!loading && !hasDoneFetch) {
+      setLoading(true);
       api.fetchQuestions().then(() => {
         setDoneFetch(true)
         setLoading(false);
@@ -161,9 +162,11 @@ function App() {
     <>
       <div className="paper">
         <h1>Question Dashboard</h1>
-        <p>
+        {
+          questionCount !== null && <p>
           You have <strong><code>{questionCount}</code></strong> question{questionCount !== 1 && 's'} in your inbox.
         </p>
+        }
         {
           loading && <h2>LOADING</h2>
         }

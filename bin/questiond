@@ -38,7 +38,8 @@ app.use((req,res,n) => {
 });
 
 app.get('/fetch-new-questions', async(req, res) => {
-  fetch();
+  clearTimeout(interval);
+  interval = setTimeout(fetch, 1000 * conf.interval);
   res.send('OK');
 });
 

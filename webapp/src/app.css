@@ -17,3 +17,6 @@ body {
 .flexbox > div > span.d:first-child {
   margin-top: 0;
 }
+:disabled {
+  opacity:0.8;
+}
