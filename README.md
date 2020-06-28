@@ -1,5 +1,5 @@
 # Dave's Question Answer System
-> Code to run davecode.me/q+a
+> Code to run [davecode.me/q+a](https://davecode.me/q+a)
 
 This is most of the code used to run the qa service. It is composed of:
 - **Question Submitter** (PHP) see ./server
